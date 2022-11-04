@@ -16,10 +16,39 @@ def binary_to_ints(value):
       return 0
 
 
-def validate_train_test_split(data, target_variable, seed):
-    validate_train, test = train_test_split(data, test_size = 0.2, stratify = data[target_variable])
-    train, validate = train_test_split(validate_train, test_size=0.3, random_state=seed, stratify=validate_train[target_variable])
+
+def train_validate_test_split(data, target, seed = 126):
+    """
+    It splits the data into train, validate and test sets.
+
+    :param data: the dataframe you want to split
+    :param target: The column name of the target variable
+    :param seed: The random seed to use when splitting the data, defaults to 126 (optional)
+    :return: three dataframes: train, validate, and test.
+    """
+    train_validate, test = train_test_split(data, test_size=0.20, random_state=seed, stratify=data[target])
+    train, validate = train_test_split(train_validate, test_size=0.30, random_state=seed,stratify=train_validate[target])
     return train, validate, test
+
+def process_unencoded_data(data):
+    """
+    It takes in a dataframe, drops duplicates, removes rows where tenure is 0, removes $ and , from
+    TotalCharges, converts TotalCharges to float, strips whitespace from all object columns, and returns
+    a train, validate, and test dataframe
+
+    :param data: the dataframe to be split
+    :return: A tuple of 4 dataframes
+    """
+    data.drop_duplicates(inplace = True)
+    categorical_columns = data.select_dtypes('object').columns
+
+
+    for column in categorical_columns:
+        data[column] = data[column].str.strip()
+    # data.drop(columns = ['InternetService', 'Contract', 'PaymentMethod'], inplace = True)
+    return train_validate_test_split(data, 'Revenue')
+
+
 
 
 # univariate data exploratory analysis
@@ -30,14 +59,16 @@ def univariate(data, categorical_vars, quantitative_vars):
 
     for column in quantitative_vars:
         plot, descriptive_statistics = univariate_quant(data, column)
+        plt.gca(figsize = 10)
         plt.show(plot)
         print(descriptive_statistics)
 
 
 def univariate_categorical(data, categorical_vars):
     frequency_table = freq_table(data, categorical_vars)
-    plt.figure(figsize=(2,2))
-    sns.barplot(x=categorical_vars, y='Count', data=frequency_table, color='lightseagreen')
+    plt.figure(figsize=(6,3))
+    sns.barplot(x=categorical_vars, y='Count', data=frequency_table, color='lightblue')
+    plt.xticks(rotation = 90)
     plt.title(categorical_vars)
     plt.show()
     print(frequency_table)
@@ -47,7 +78,7 @@ def univariate_quant(data, quantitative_vars):
     descriptive_statistics = data[quantitative_vars].describe()
     plt.figure(figsize=(8,2))
     p = plt.subplot(1, 2, 1)
-    p = plt.hist(data[quantitative_vars], color='lightseagreen')
+    p = plt.hist(data[quantitative_vars], color='lightblue')
     p = plt.title(quantitative_vars)
 
     # second plot: box plot
