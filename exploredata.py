@@ -247,3 +247,41 @@ def compare_means(data, target_variable, quantitative_vars, alt_hyp='two-sided')
     return stats.mannwhitneyu(x, y, use_continuity=True, alternative=alt_hyp)
 
 # Multivariate data exploratory analysis
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
