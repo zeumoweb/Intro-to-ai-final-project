@@ -60,7 +60,6 @@ def univariate(data, categorical_vars, quantitative_vars):
     This function takes in a dataframe, a list of categorical variables, and a list of quantitative
     variables. It then calls the univariate_categorical function for each categorical variable and the
     univariate_quant function for each quantitative variable.
-
     :param data: the dataframe
     :param categorical_vars: a list of categorical variables
     :param quantitative_vars: a list of quantitative variables
@@ -232,56 +231,41 @@ def plot_boxen(data, target_variable, quantitative_var):
 
 
 def compare_means(data, target_variable, quantitative_vars, alt_hyp='two-sided'):
-    """
-    It takes a dataframe, a target variable, and a list of quantitative variables, and returns a
-    Mann-Whitney U test for each quantitative variable.
-    :param data: the dataframe
-    :param target_variable: the variable you want to compare means for
-    :param quantitative_vars: a list of quantitative variables to compare
-    :param alt_hyp: the alternative hypothesis. Can be 'two-sided', 'less', or 'greater', defaults to
-    two-sided (optional)
-    :return: The Mann-Whitney U test is being returned.
-    """
     x = data[data[target_variable]==0][quantitative_vars]
     y = data[data[target_variable]==1][quantitative_vars]
     return stats.mannwhitneyu(x, y, use_continuity=True, alternative=alt_hyp)
 
-# Multivariate data exploratory analysis
+def two_t_test(data, quantitative_vars, target_variable):
+    """
+    The function takes in a dataframe, a list of quantitative variables, and a target variable. It then
+    performs a Shapiro-Wilk test to check for normality, and if the p-value is less than 0.05, it
+    performs a Mann-Whitney U test. If the p-value is greater than 0.05, it performs a Levene test to
+    check for homogeneity of variance, and if the p-value is less than 0.05, it performs a Mann-Whitney
+    U test.
+    :param data: the dataframe
+    :param quantitative_vars: list of quantitative variables
+    :param target_variable: The variable you want to predict
+    """
+    columns = []
+    p_values = []
+    test_significance = []
+    for var in quantitative_vars:
+        columns.append(var)
+        category_1 = data[var][data[target_variable] == False]
+        category_2 = data[var][data[target_variable] == True]
+        for bol in [category_1]:
+            t_stats1, p_val1 = stats.shapiro(bol)
+        for bin in [category_2]:
+            t_stats2, p_val2 = stats.shapiro(bin)
+        if p_val1 > 0.05 or p_val2 > 0.05:
+            stats_3, p_val3 = stats.levene(category_1, category_2)
 
+        if p_val1 <= 0.05 or p_val2 <= 0.05 or p_val3 <= 0.05:
+            ms, mp = stats.mannwhitneyu(category_1, category_2)
+            p_values.append(round(mp, 4))
+        if mp < 0.05:
+            test_significance.append('significant')
+        else:
+            test_significance.append('insignificant')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return pd.DataFrame({'Feature': columns, 'P-Value': p_values, 'Significance': test_significance})
