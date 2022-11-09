@@ -157,8 +157,8 @@ def bivariate_quant(data, target, quantitative_vars):
     average = data[quantitative_vars].mean()
     mann_whitney = compare_means(data, target, quantitative_vars)
     plt.figure(figsize=(4,4))
-    boxen = plot_boxen(data, target, quantitative_vars)
-    swarm = plot_swarm(data, target, quantitative_vars)
+    plot_boxen(data, target, quantitative_vars)
+    plot_swarm(data, target, quantitative_vars)
     plt.show()
     print(descriptive_stats, "\n")
     print("\nMann-Whitney Test:\n", mann_whitney)
@@ -187,9 +187,6 @@ def plot_cat_by_target(data, target_variable, categorical_var):
     """
     It takes a dataframe, a target variable, and a categorical variable, and plots the mean of the
     target variable for each category of the categorical variable
-    :param data: the dataframe
-    :param target_variable: the name of the target variable
-    :param categorical_var: the categorical variable you want to plot
     :return: A plot
     """
     p = plt.figure(figsize=(10,2))
@@ -203,10 +200,6 @@ def plot_cat_by_target(data, target_variable, categorical_var):
 def plot_swarm(data, target_variable, quantitative_var):
     """
     It plots a swarmplot of the quantitative variable against the target variable.
-    :param data: the dataframe
-    :param target_variable: The variable you want to plot the swarmplot for
-    :param quantitative_var: the quantitative variable you want to plot
-    :return: The plot object.
     """
     average = data[quantitative_var].mean()
     p = sns.swarmplot(data=data, x=target_variable, y=quantitative_var, color='lightgray')
@@ -218,13 +211,10 @@ def plot_swarm(data, target_variable, quantitative_var):
 def plot_boxen(data, target_variable, quantitative_var):
     """
     It plots a boxen plot for the quantitative variable and the target variable.
-    :param data: the dataframe
-    :param target_variable: The variable you want to split the data by
-    :param quantitative_var: the quantitative variable you want to plot
-    :return: The plot is being returned.
     """
     average = data[quantitative_var].mean()
-    p = sns.boxenplot(data=data, x=target_variable, y=quantitative_var, color='seablue')
+    p = sns.boxenplot(data=data, x=target_variable, y=quantitative_var, color='orange')
+
     p = plt.title(quantitative_var)
     p = plt.axhline(average, ls='--', color='black')
     return p
