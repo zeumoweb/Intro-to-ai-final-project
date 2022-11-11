@@ -31,20 +31,14 @@ def train_validate_test_split(data, target, seed = 126):
     return train, validate, test
 
 
-
-
-
 def process_unencoded_data(data):
     """
     It takes in a dataframe, drops duplicates, removes rows where tenure is 0, removes $ and , from
     TotalCharges, converts TotalCharges to float, strips whitespace from all object columns, and returns
     a train, validate, and test dataframe
-    :param data: the dataframe to be split
-    :return: A tuple of 4 dataframes
     """
     data.drop_duplicates(inplace = True)
     categorical_columns = data.select_dtypes('object').columns
-
 
     for column in categorical_columns:
         data[column] = data[column].str.strip()
@@ -60,9 +54,6 @@ def univariate(data, categorical_vars, quantitative_vars):
     This function takes in a dataframe, a list of categorical variables, and a list of quantitative
     variables. It then calls the univariate_categorical function for each categorical variable and the
     univariate_quant function for each quantitative variable.
-    :param data: the dataframe
-    :param categorical_vars: a list of categorical variables
-    :param quantitative_vars: a list of quantitative variables
     """
     for var in categorical_vars:
         univariate_categorical(data, var)
@@ -104,8 +95,6 @@ def univariate_quant(data,quantitative_variables):
 def freq_table(train, cat_var):
     """
     It takes a dataframe and a categorical variable as input, and returns a frequency table as output
-    :param train: the training dataset
-    :param cat_var: The categorical variable you want to create a frequency table for
     :return: A dataframe with the unique values of the categorical variable, the count of each unique
     value, and the percentage of each unique value.
     """
@@ -122,47 +111,60 @@ def freq_table(train, cat_var):
 
 
 # Bivariate data exploratory Analysis
-def bivariate_categorical(data, target, categorical_vars):
+def bivariate_categorical(data, target, categorical_variable):
     """
-    It takes in a dataframe, a target variable, and a list of categorical variables, and then prints out
-    a chi-squared summary, a crosstab of the observed values, a crosstab of the expected values, and a
-    plot of the categorical variable by the target variable
-    :param data: the dataframe
-    :param target: the target variable
-    :param categorical_vars: a list of categorical variables in the dataframe
+    It takes a dataframe, a target variable, and a categorical variable, and returns a crosstab of the
+    two variables and a bar chart of the crosstab
     """
-    ct = pd.crosstab(data[categorical_vars], data[target], margins=True)
-    chi2_summary, observed, expected = run_chi2(data, categorical_vars, target)
-    p = plot_cat_by_target(data, target, categorical_vars)
-
-    print(chi2_summary)
+    ct = pd.crosstab(data[categorical_variable], data[target], margins=True)
+    plot = plot_cat_by_target(data, target, categorical_variable)
     print("\nobserved:\n", ct)
-    print("\nexpected:\n", expected)
-    plt.show(p)
-    print("\n_____________________\n")
+    plt.show(plot)
 
 
-def bivariate_quant(data, target, quantitative_vars):
+
+def bivariate_quant(data, target, quantitative_var):
     """
-    The above function takes in a dataframe, a target variable, and a list of quantitative variables. It
-    then prints the list of quantitative variables, prints the descriptive statistics for each
-    quantitative variable, prints the average of each quantitative variable, prints the results of the
-    Mann-Whitney test, and plots a boxen plot and a swarm plot.
-    :param data: the dataframe
-    :param target: the target variable
-    :param quantitative_vars: a list of quantitative variables
+    It takes a dataframe, a target variable, and a quantitative variable, and then it prints the
+    descriptive statistics for the quantitative variable, grouped by the target variable. It also plots
+    a boxen plot of the quantitative variable, grouped by the target variable
     """
-    print(quantitative_vars, "\n____________________\n")
-    descriptive_stats = data.groupby(target)[quantitative_vars].describe()
-    average = data[quantitative_vars].mean()
-    mann_whitney = compare_means(data, target, quantitative_vars)
+    print(quantitative_var, "\n____________________\n")
+    descriptive_stats = data.groupby(target)[quantitative_var].describe()
     plt.figure(figsize=(4,4))
-    boxen = plot_boxen(data, target, quantitative_vars)
-    swarm = plot_swarm(data, target, quantitative_vars)
+    plot_boxen(data, target, quantitative_var)
+    # plot_swarm(data, target, quantitative_vars)
     plt.show()
     print(descriptive_stats, "\n")
-    print("\nMann-Whitney Test:\n", mann_whitney)
-    print("\n____________________\n")
+
+
+def plot_swarm(data, target_variable, quantitative_var):
+    """
+    It plots a swarmplot of the quantitative variable against the target variable.
+    """
+    average = data[quantitative_var].mean()
+    p = sns.swarmplot(data=data, x=target_variable, y=quantitative_var, color='lightgray')
+    p = plt.title(quantitative_var)
+    p = plt.axhline(average, ls='--', color='black')
+    return p
+
+
+def plot_boxen(data, target_variable, quantitative_var):
+    """
+    It plots a boxen plot for the quantitative variable and the target variable.
+    """
+    average = data[quantitative_var].mean()
+    p = sns.boxenplot(data=data, x=target_variable, y=quantitative_var, color='orange')
+
+    p = plt.title(quantitative_var)
+    p = plt.axhline(average, ls='--', color='black')
+    return p
+
+
+def compare_means(data, target_variable, quantitative_vars, alt_hyp='two-sided'):
+    x = data[data[target_variable]==0][quantitative_vars]
+    y = data[data[target_variable]==1][quantitative_vars]
+    return stats.mannwhitneyu(x, y, use_continuity=True, alternative=alt_hyp)
 
 
 def run_chi2(data, categorical_var, target_variable):
@@ -187,9 +189,6 @@ def plot_cat_by_target(data, target_variable, categorical_var):
     """
     It takes a dataframe, a target variable, and a categorical variable, and plots the mean of the
     target variable for each category of the categorical variable
-    :param data: the dataframe
-    :param target_variable: the name of the target variable
-    :param categorical_var: the categorical variable you want to plot
     :return: A plot
     """
     p = plt.figure(figsize=(10,2))
@@ -200,40 +199,6 @@ def plot_cat_by_target(data, target_variable, categorical_var):
 
 
 
-def plot_swarm(data, target_variable, quantitative_var):
-    """
-    It plots a swarmplot of the quantitative variable against the target variable.
-    :param data: the dataframe
-    :param target_variable: The variable you want to plot the swarmplot for
-    :param quantitative_var: the quantitative variable you want to plot
-    :return: The plot object.
-    """
-    average = data[quantitative_var].mean()
-    p = sns.swarmplot(data=data, x=target_variable, y=quantitative_var, color='lightgray')
-    p = plt.title(quantitative_var)
-    p = plt.axhline(average, ls='--', color='black')
-    return p
-
-
-def plot_boxen(data, target_variable, quantitative_var):
-    """
-    It plots a boxen plot for the quantitative variable and the target variable.
-    :param data: the dataframe
-    :param target_variable: The variable you want to split the data by
-    :param quantitative_var: the quantitative variable you want to plot
-    :return: The plot is being returned.
-    """
-    average = data[quantitative_var].mean()
-    p = sns.boxenplot(data=data, x=target_variable, y=quantitative_var, color='seablue')
-    p = plt.title(quantitative_var)
-    p = plt.axhline(average, ls='--', color='black')
-    return p
-
-
-def compare_means(data, target_variable, quantitative_vars, alt_hyp='two-sided'):
-    x = data[data[target_variable]==0][quantitative_vars]
-    y = data[data[target_variable]==1][quantitative_vars]
-    return stats.mannwhitneyu(x, y, use_continuity=True, alternative=alt_hyp)
 
 def two_t_test(data, quantitative_vars, target_variable):
     """
@@ -242,9 +207,6 @@ def two_t_test(data, quantitative_vars, target_variable):
     performs a Mann-Whitney U test. If the p-value is greater than 0.05, it performs a Levene test to
     check for homogeneity of variance, and if the p-value is less than 0.05, it performs a Mann-Whitney
     U test.
-    :param data: the dataframe
-    :param quantitative_vars: list of quantitative variables
-    :param target_variable: The variable you want to predict
     """
     columns = []
     p_values = []
