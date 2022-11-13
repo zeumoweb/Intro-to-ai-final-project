@@ -20,7 +20,6 @@ def binary_to_ints(value):
 def train_validate_test_split(data, target, seed = 126):
     """
     It splits the data into train, validate and test sets.
-
     :param data: the dataframe you want to split
     :param target: The column name of the target variable
     :param seed: The random seed to use when splitting the data, defaults to 126 (optional)
@@ -172,10 +171,6 @@ def run_chi2(data, categorical_var, target_variable):
     It takes in a dataframe, a categorical variable, and a target variable. It then runs a chi-squared
     test on the dataframe and returns the chi-squared summary, the observed values, and the expected
     values.
-    :param data: the dataframe
-    :param categorical_var: The categorical variable you want to test
-    :param target_variable: The variable you want to predict
-    :return: A tuple of 3 dataframes.
     """
     observed = pd.crosstab(data[categorical_var], data[target_variable])
     chi2, p, degf, expected = stats.chi2_contingency(observed)
