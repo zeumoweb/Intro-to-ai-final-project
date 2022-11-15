@@ -79,18 +79,27 @@ function PredictIntent() {
 
   const classes = useStyles();
 
-  if (predictionData.final_prediction) {
+  if (predictionData?.prediction_data) {
     const outputComponent = (
       <div className="output_container">
         <Card className={`${classes.root} output_container__card`}>
-          {/* <CardActionArea> */}
-          <CardMedia
-            component="img"
-            // alt={predictedCrop.title}
-            // height="225"
-            // image={predictedCrop.imageUrl}
-            // title={predictedCrop.title}
-          />
+          {predictionData?.prediction_data ===
+          "Customer will not make a purchase" ? (
+            <CardMedia
+              component="img"
+              height="194"
+              image="/assets/dis.png"
+              alt="not purchased"
+            />
+          ) : (
+            <CardMedia
+              component="img"
+              height="194"
+              image="/assets/well.png"
+              alt="not purchased"
+            />
+          )}
+
           <CardContent>
             <Typography gutterBottom variant="h5" component="h2">
               <b>Prediction: </b>
@@ -102,7 +111,7 @@ function PredictIntent() {
             ></Typography>
             <br />
 
-            <TableContainer component={Paper}>
+            <TableContainer align="center" component={Paper}>
               <Table className={classes.table} aria-label="simple table">
                 <TableHead>
                   <TableRow>
@@ -114,8 +123,9 @@ function PredictIntent() {
                 <TableBody>
                   <TableRow>
                     <TableCell align="center">
-                      {predictionData.rf_model_prediction} (
-                      {/* {predictionData.rf_model_probability}%) */}
+                      <Typography gutterBottom variant="h5" component="h2">
+                        <b> {predictionData.prediction_data}</b>
+                      </Typography>
                     </TableCell>
                   </TableRow>
                 </TableBody>

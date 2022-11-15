@@ -1,5 +1,7 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
+import logging
+import sys
 
 import os
 import json
@@ -33,11 +35,9 @@ def convert(o):
 
 
 def predict_customer_purchase_intent(input_data):
-
+    print(input_data)
     prediction_data = {
         "rf_model_prediction": intent_rf_pipeline.predict(input_data),
-        # "rf_model_probability": max(intent_rf_pipeline.predict_proba(input_data)[0])
-        # * 100
     }
     print("prediction_data: ", prediction_data.rf_model_prediction)[0]
     return prediction_data
@@ -45,17 +45,31 @@ def predict_customer_purchase_intent(input_data):
 
 @app.route("/predict", methods=["GET", "POST"])
 def predictintent():
+
     try:
         if request.method == "POST":
             form_values = request.form.to_dict()
-            # print(form_values)
             column_names = ["Administrative", "Administrative_Duration","Informational","Informational_Duration", "ProductRelated",	"ProductRelated_Duration", "BounceRates", "ExitRates","PageValues", "SpecialDay", "Month", "OperatingSystems","Region", "TrafficType",	"VisitorType"]
-            input_data = np.asarray([(form_values[i].strip()) for i in column_names]).reshape(
+            print("modelling", file=sys.stderr)
+            input_data = np.asarray([float(form_values[i].strip()) for i in column_names]).reshape(
                 1, -1
             )
-            prediction_data = intent_rf_pipeline(pd.get_dummies(input_data))
-            json_obj = json.dumps(prediction_data, default=convert)
-            return json_obj
+            print(form_values, file=sys.stderr)
+            testdata = pd.DataFrame(data=input_data, columns = column_names )
+            print(testdata, file=sys.stderr)
+            prediction_data = intent_rf_pipeline.predict(testdata)
+            if prediction_data[0] == 1:
+
+                return  jsonify({
+                    "prediction_data":"Customer will make a purchase"
+                    })
+
+            if prediction_data[0] == 0:
+
+                return  jsonify({
+                    "prediction_data":"Customer will not make a purchase"
+                    })
+            print(prediction_data, file=sys.stderr)
     except:
         return json.dumps({"error":"Hey Enter Valid Data"}, default=convert)
 
