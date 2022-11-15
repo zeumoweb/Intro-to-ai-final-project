@@ -25,11 +25,6 @@ intent_rf_pipeline = pickle.load(
     open("model.pkl", "rb")
 )
 
-# intent_label_dict = pickle.load(
-#     open("./models/crop_recommendation/label_dictionary.pkl", "rb")
-# )
-
-
 
 def convert(o):
     if isinstance(o, np.generic):
@@ -44,19 +39,6 @@ def predict_customer_purchase_intent(input_data):
         # "rf_model_probability": max(intent_rf_pipeline.predict_proba(input_data)[0])
         # * 100
     }
-
-    # all_predictions = [
-    #         prediction_data["rf_model_prediction"]
-    #     ]
-
-    # all_probs = [
-    #         prediction_data["rf_model_probability"],
-    #     ]
-
-    # if len(set(all_predictions)) == len(all_predictions):
-    #     prediction_data["final_prediction"] = all_predictions[all_probs.index(max(all_probs))]
-    # else:
-        # prediction_data["final_prediction"] = stats.mode(all_predictions)[0][0]
     print("prediction_data: ", prediction_data.rf_model_prediction)[0]
     return prediction_data
 
