@@ -44,7 +44,7 @@ def predict_customer_purchase_intent(input_data):
 
 
 @app.route("/predict", methods=["GET", "POST"])
-def predictcrop():
+def predictintent():
     try:
         if request.method == "POST":
             form_values = request.form.to_dict()
