@@ -17,8 +17,12 @@ function Home() {
           </div>
           <div className="banner__title_tail">
             <div className="typing">
-              A Machine Learning based Web Application for Crop and Fertilizer
-              Recommendation
+              A Machine Learning based Web Application for Predicting the intent
+              of a customer making a <br />
+              <strong>
+                purchase from an online shop within a browsing session using the
+                user's cookies information
+              </strong>
             </div>
             <div className="banner__buttons">
               <Button
