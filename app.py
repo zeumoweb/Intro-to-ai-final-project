@@ -1,14 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-import logging
-import sys
+# import logging
+# import sys
 
 import os
 import json
 import pickle
 import numpy as np
 import pandas as pd
-from scipy import stats
+# from scipy import stats
 
 app = Flask(__name__)
 
@@ -50,13 +50,13 @@ def predictintent():
         if request.method == "POST":
             form_values = request.form.to_dict()
             column_names = ["Administrative", "Administrative_Duration","Informational","Informational_Duration", "ProductRelated",	"ProductRelated_Duration", "BounceRates", "ExitRates","PageValues", "SpecialDay", "Month", "OperatingSystems","Region", "TrafficType",	"VisitorType"]
-            print("modelling", file=sys.stderr)
+            # print("modelling", file=sys.stderr)
             input_data = np.asarray([float(form_values[i].strip()) for i in column_names]).reshape(
                 1, -1
             )
-            print(form_values, file=sys.stderr)
+            # print(form_values, file=sys.stderr)
             testdata = pd.DataFrame(data=input_data, columns = column_names )
-            print(testdata, file=sys.stderr)
+            # print(testdata, file=sys.stderr)
             prediction_data = intent_rf_pipeline.predict(testdata)
             if prediction_data[0] == 1:
 
@@ -69,7 +69,7 @@ def predictintent():
                 return  jsonify({
                     "prediction_data":"Customer will not make a purchase"
                     })
-            print(prediction_data, file=sys.stderr)
+            # print(prediction_data, file=sys.stderr)
     except:
         return json.dumps({"error":"Hey Enter Valid Data"}, default=convert)
 
